@@ -4,7 +4,7 @@ close all
 height_config
 image_names
 coord_config
-run_number = 1;
+run_number = 3;
 im1 = imread(image_name(run_number, 1));
 im2 = imread(image_name(run_number, 2));
 mask1_name = image_name(run_number, 1) + ".mask.mat";

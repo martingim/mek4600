@@ -5,7 +5,7 @@ function [mask] = mask_image(im1)
 
 figure;
 set(gca,'Ydir','normal')
-imagesc(flipud(im1));
+imagesc(im1);
 h = impoly();
 mask = h.createMask();
 end
