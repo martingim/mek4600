@@ -1,62 +1,30 @@
 %read images and constants
-clear
+
 close all
 height_config
+image_names
+coord_config
+run_number = 1;
+im1 = imread(image_name(run_number, 1));
+im2 = imread(image_name(run_number, 2));
+mask1_name = image_name(run_number, 1) + ".mask.mat";
+mask2_name = image_name(run_number, 2) + ".mask.mat";
 
-run_folder = "MEK4600_G3_21_10_02/2021-02-10_run2_C001H001S0001/";
-image_name = '2021-02-10_run2_C001H001S0001000';
-image_number1 = '020';
-image_number2 = '021';
-im1 = imread(run_folder + image_name + image_number1 +'.bmp');
-im2 = imread(run_folder + image_name + image_number2 +'.bmp');
-coord_name = '2021-02-10_coordinationphoto_C001H001S0001000001.bmp';
 
-height_from_surface = 0.008; %the height from the free surface to the top coordinate dots
-height = 0.6;
-frequency = 1.75;
+height = 0.33;
+f = frequency(run_number);
+[omega,T,k,LAMBDA,CP,CG]=wparam(f,height);
 
 surface_height % run the surface height script to find the amplitude
-dt = 1/60;
-a = mean(mean_amplitude);
-k = 12.32;
+dt = 1/60;     %based on the framerate of the videos
+a = mean(mean_amplitude); %the mean of the amplitudes found from the four sensors
 g = 9.81;
 t = 0;
-omega = 2*pi*frequency;
 
 window_sizes = [64 32];
 window_overlap = [0.5 0.5 0.5 0.5 0.5 0.5];
 scale = 3;
 max_arrows = 50; %maximum number of arrows in the quiver plots
-
-coord = imread(coord_name);
-
-x0 = 73;
-x1 = 1988;
-y0 = 398;
-y0 = 472;
-y1 = 2020;
-[x_pos, y_pos] = ndgrid(round(x1:(x0-x1)/26:x0), round(y1:(y0-y1)/21:y0));
-pixel = [reshape(x_pos, [], 1) reshape(y_pos, [], 1)];
-
-%refine pixel positions
-c = graythresh(coord);
-bw = im2bw(coord, 0.9);
-cc = bwconncomp(bw);
-stats = regionprops(cc,'Centroid');
-xc = vertcat(stats.Centroid);
-idx = knnsearch(xc,pixel);
-pixel = xc(idx,:);
-
-% Define matching reference points in world coordinate
-[wx,wy] = ndgrid((13:-1:-13)*0.01,(-22:1:-1)*0.01-height_from_surface);
-%[wx,wy] = ndgrid((1:-1:-1)*0.01,(-1:1:1)*0.01-height_from_surface);
-world = [wx(:) wy(:)];
-[tform, err, env] = createcoordsystem(pixel, world, 'cubic');
-
-
-
-
-
 
 
 %%
@@ -65,36 +33,16 @@ world = [wx(:) wy(:)];
 %phi = a*g/omega*exp(k*y)*sin(-k*x-omega*t);
 u = @(x, y) a*k*g/omega*exp(k*y).*cos(k*x-omega*t);
 v = @(x, y) a*k*g/omega*exp(k*y).*sin(k*x-omega*t);
-if exist('mask1', 'var')&&exist('mask2', 'var')==1
 
-else
+%try to load the image masks 
+try
+    load(mask1_name)
+    load(mask2_name)
+catch %if it doesn't work mask and save the mask.
     mask1 = mask_image(flipud(im1));
     mask2 = mask_image(flipud(im2));
-end
-
-%make pixel to world transform
-if exist('tform', 'var') ==1
-
-else
-    coord = imread(coord_name);
-    imagesc(coord)
-    h = impoly;
-    title('select from top right towards left')
-    pixel = h.getPosition;
-    
-    %refine pixel positions
-    c = graythresh(coord);
-    bw = im2bw(coord);
-    cc = bwconncomp(bw);
-    stats = regionprops(cc,'Centroid');
-    xc = vertcat(stats.Centroid);
-    idx = knnsearch(xc,pixel);
-    pixel = xc(idx,:);
-    
-    % Define matching reference points in world coordinate
-    [wx,wy] = ndgrid((10:-5:-10)*0.01,(-10:5:-5)*0.01);
-    world = [wx(:) wy(:)];
-    [tform, err, env] = createcoordsystem(pixel, world, 'linear');
+    save(mask1_name, 'mask1')
+    save(mask2_name, 'mask2')
 end
 
 % Perform PIV passes
@@ -111,13 +59,13 @@ end
 [U,V, x, y] = replaceoutliers(piv1);
 
 %Convert to world coordinates
-[Uw, Vw, xw, yw] = pixel2world(tform, U, V, x, y, dt);
+[Uw, Vw, xw, yw] = pixel2world(tform(ceil(run_number/5)), U, V, x, y, dt);
 
 %surface 
 [idx1,eta1] = max(mask1);
 [idx2,eta2] = max(mask2);
 
-[etax,etay] = tformfwd(tform,1:size(im1,2),(eta1+eta2)/2);
+[etax,etay] = tformfwd(tform(ceil(run_number/5)),1:size(im1,2),(eta1+eta2)/2);
 %% Plot velocities 
 
 
@@ -169,8 +117,9 @@ ylabel('y[m]')
 
 %find the crest
 figure;
-V(isnan(V))=0;
-v_abs = abs(V);
+V_ = V;
+V_(isnan(V))=0;
+v_abs = abs(V_);
 v_mean = mean(v_abs, 1);
 [v_min, crest_idx] = min(v_mean(3:end-2));
 plot(xw(1,3:end-2), v_mean(3:end-2), 'r');
@@ -205,7 +154,7 @@ ylabel('$\frac{y}{h}$', 'interpreter', 'latex', 'FontSize', 20, 'rotation', 0)
 
 %%
 [M, N] = size(Uw);
-V = zeros(M,1)*NaN;
+V_norm_mean = zeros(M,1)*NaN;
 
 for i=1:M
     n = 0;
@@ -217,10 +166,10 @@ for i=1:M
             s = s + (Uw(i,j)^2+Vw(i,j)^2)^0.5;
         end
     end 
-    V(i) = s/n;
+    V_norm_mean(i) = s/n;
     
 end
-alpha = omega/(a*g*k)*V;
+alpha = omega/(a*g*k)*V_norm_mean;
 figure
 hold on
 y_to_crest = yw(yw(:,1)<0.02, crest_idx);
@@ -231,9 +180,9 @@ title('Alpha plot')
 xlabel('$\alpha$', 'interpreter', 'latex', 'FontSize', 20)
 ylabel('$\frac{y}{h}$', 'interpreter', 'latex', 'FontSize', 20, 'rotation', 0)
 %%
-V = (Uw.^2+Vw.^2).^0.5;
-V_mean = mean(V, 2);
-sigma = mean(sqrt(mean((V-V_mean).^2, 1)), 2);
+V_norm = (Uw.^2+Vw.^2).^0.5;
+V_mean = mean(V_norm, 2);
+sigma = mean(sqrt(mean((V_norm-V_mean).^2, 1)), 2);
 sigma
 sigma = 0;
 m = 0;
@@ -244,7 +193,7 @@ for i=1:M
     for j=1:N
         if idx(i,j)==1
             n = n + 1;
-            s = s + (V(i,j)-V_mean(i))^2;
+            s = s + (V_norm(i,j)-V_mean(i))^2;
         end
         
     end
