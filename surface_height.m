@@ -1,21 +1,24 @@
 close all
-f = 2.25; %The frequency of the run
+run_number = 10;
+folder = day_folder(run_number);
+f = frequency(run_number); %The frequency of the run
 [omega,T,K,LAMBDA,CP,CG] = wparam(f, 0.33); %calculate the wavenumber and phase velocity
 sensor_distance = 0.4; %the dstance between the sensors in meters(should maybe change this to a vector)
 %start and stop frame for measuring the elevation of the surface
-surface_frame_start = 589;
-surface_frame_end = 2074;
+surface_frame_start = surface_start_stop(run_number, 1);
+surface_frame_end = surface_start_stop(run_number, 2);
+surface_frame_end = surface_frame_end + rem(surface_frame_end-surface_frame_start+1, 2);%to simplify the fft
 
 sensor_samplerate = 100; %Hz
 min_separation = 1/f*sensor_samplerate*0.8; %minimum separation when finding the crests and troughs
 %read sensor data from file
-sensordata = table2array(readtable(folder + 'run4_3.csv'));
+sensordata = table2array(readtable(folder + sprintf("/run%d.csv", run_number)));
 
 %remove zeros
 sensordata = sensordata(:,5:8);
-sensordata(sensordata<100|sensordata>900) = NaN; %replace the outliers with NaN
+sensordata(sensordata<350|sensordata>850) = NaN; %replace the outliers with NaN
 
-%convert the data drom the sensors to measured surface elevation in meters
+%convert the data from the sensors to measured surface elevation in meters
 measured_surface = [sensor1(sensordata(:,1)), sensor2(sensordata(:,2)) sensor3(sensordata(:,3)) sensor4(sensordata(:,4))];
 
 %subtract the mean from the surface to get zero mean
@@ -59,13 +62,25 @@ end
 
 a = mean(mean_amplitude);
 
+
+%% plot the measured surface with theoretical linear and non linear
 t = 0:0.001:2;
 eta = a*cos(-omega*t); %the linear surface
 eta_non_linear = a*cos(-omega*t) +  0.5*a^2*K*cos(2*(-omega*t)) + 3/8*K^2*a^3*cos(3*(-omega*t)); %the non-linear surface
 
 %find the first crest to start plotting from
 crests = islocalmax(surf(:,1), 'MinSeparation', 10);
-[m, start_idx] = max(crests); %the index to start plotting the measured surface from
+crest_found = -1;
+while crest_found<0
+    [m, start_idx] = max(crests); %the index to start plotting the measured surface from
+    
+        
+    if surf(start_idx)<0.9*a
+        crests(start_idx) = 0;
+    else
+        crest_found=1;
+    end
+end
 
 %plot the surfaces
 figure
