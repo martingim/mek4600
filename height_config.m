@@ -1,3 +1,4 @@
+%%makes functions for transforming from sensor data to height
 %%read tables from csv files
 folder = "MEK4600_G3_21_10_02/";
 data0 = readtable(folder + 'calib0.csv');
