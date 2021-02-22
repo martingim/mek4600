@@ -1,10 +1,11 @@
 %read images and constants
 
 close all
-height_config
+
 image_names
 coord_config
-run_number = 3;
+
+run_number = 2;
 im1 = imread(image_name(run_number, 1));
 im2 = imread(image_name(run_number, 2));
 mask1_name = image_name(run_number, 1) + ".mask.mat";
@@ -15,9 +16,12 @@ height = 0.33;
 f = frequency(run_number);
 [omega,T,k,LAMBDA,CP,CG]=wparam(f,height);
 
-surface_height % run the surface height script to find the amplitude
+a = surface_height(run_number); % run the surface height script to find the amplitude
 dt = 1/60;     %based on the framerate of the videos
-a = mean(mean_amplitude); %the mean of the amplitudes found from the four sensors
+if run_number ==1
+    dt = 1/120;
+end
+
 g = 9.81;
 t = 0;
 
@@ -39,13 +43,13 @@ try
     load(mask1_name)
     load(mask2_name)
 catch %if it doesn't work mask and save the mask.
-    mask1 = mask_image(flipud(im1));
-    mask2 = mask_image(flipud(im2));
+    mask1 = mask_image(im1);
+    mask2 = mask_image(im2);
     save(mask1_name, 'mask1')
     save(mask2_name, 'mask2')
 end
 
-% Perform PIV passes
+%% Perform PIV passes
 piv1 = [];
 for i= 1:size(window_sizes, 2)
     search_range = [-round(window_sizes(i)/3) round(window_sizes(i)/3) -round(window_sizes(i)/3) round(window_sizes(i)/3)];
@@ -54,7 +58,7 @@ for i= 1:size(window_sizes, 2)
     piv1 = normalpass(piv1,im1,mask1,im2,mask2,opt);
     piv2 = piv1;
 end
-
+%%
 %Replace outliers
 [U,V, x, y] = replaceoutliers(piv1);
 
@@ -121,8 +125,16 @@ V_ = V;
 V_(isnan(V))=0;
 v_abs = abs(V_);
 v_mean = mean(v_abs, 1);
-[v_min, crest_idx] = min(v_mean(3:end-2));
-plot(xw(1,3:end-2), v_mean(3:end-2), 'r');
+
+NaN_sides = ones(size(v_mean));%vector to make the values to the left and right sides of the image NaN to find the internal minimum
+for i = 1:size(v_mean, 2)
+    if i<size(v_mean, 2)*0.25 | i>size(v_mean, 2)*0.75
+        NaN_sides(i) = NaN;
+    end
+end
+
+[v_min, crest_idx] = min(v_mean.*NaN_sides);
+plot(xw(1,:), v_mean, 'r');
 title('mean v over y')
 
 %find the velocity profile at the crest
@@ -197,7 +209,7 @@ for i=1:M
         end
         
     end
-    s = s/n
+    s = s/n;
     sigma = sigma + sqrt(s);
 end
 sigma = sigma/m
@@ -206,7 +218,12 @@ sigma = sigma/m
 
 
 
-
-
-
-
+try
+    load('results.mat')
+catch
+    results = containers.Map('KeyType', 'double', 'ValueType', 'any');
+end
+UVw(1,:,:) = Uw;
+UVw(2,:,:) = Vw;
+results(run_number) = UVw;
+save('results.mat', 'results')
