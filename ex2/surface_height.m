@@ -1,5 +1,6 @@
-close all
-run_number = 10;
+function [a] = surface_height(run_number)
+image_names
+height_config
 folder = day_folder(run_number);
 f = frequency(run_number); %The frequency of the run
 [omega,T,K,LAMBDA,CP,CG] = wparam(f, 0.33); %calculate the wavenumber and phase velocity
@@ -112,3 +113,4 @@ plot(3*f, 0, 'x')
 legend('fft of the measured surface', 'f', '2f', '3f')
 xlabel('frequency[Hz]')
 xlim([0 f*3.2])
+end
