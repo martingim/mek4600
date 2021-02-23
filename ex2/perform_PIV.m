@@ -16,7 +16,7 @@ height = 0.33;
 f = frequency(run_number);
 [omega,T,k,LAMBDA,CP,CG]=wparam(f,height);
 
-a = surface_height(run_number); % run the surface height script to find the amplitude
+%a = surface_height(run_number); % run the surface height script to find the amplitude
 dt = 1/60;     %based on the framerate of the videos
 if run_number ==1
     dt = 1/120;
@@ -89,7 +89,7 @@ catch
     params = containers.Map('KeyType', 'double', 'ValueType', 'any');
 end
 params_this_run = containers.Map;
-params_this_run('a') = a;
+params_this_run('a') = surface_height(run_number);
 params_this_run('k') = k;
 params_this_run('omega') = omega;
 

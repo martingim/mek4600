@@ -30,10 +30,10 @@ pixel = xc(idx,:);
 %[wx,wy] = ndgrid((1:-1:-1)*0.01,(-1:1:1)*0.01-height_from_surface);
 world = [wx(:) wy(:)];
 [tform1, err, env] = createcoordsystem(pixel, world, 'cubic');
-%show coord image and chosen poinbts
-imshow(coord)
-hold on 
-plot(pixel(:,1),pixel(:,2), 'x')
+% %show coord image and chosen poinbts
+% imshow(coord)
+% hold on 
+% plot(pixel(:,1),pixel(:,2), 'x')
 
 %% coordinate system from second lab day 
 coord2 = imread(coord_name2);
