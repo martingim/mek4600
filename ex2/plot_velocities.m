@@ -1,4 +1,4 @@
-function [] = plot_velocities(run_number, pair_number, max_arrows)
+function [y_scaled, u_crest_scaled, alpha, crest_mask] = plot_velocities(run_number, pair_number, max_arrows)
 %%plots the velocity fields
 
 scale = 3;
@@ -163,6 +163,6 @@ for i=1:M
     s = s/n;
     sigma = sigma + sqrt(s);
 end
-sigma = sigma/m;
+sigma = sigma/m
 
 end
