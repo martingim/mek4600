@@ -26,7 +26,12 @@ run_folder = ["2021-02-10_run1_C001H001S0001";
                 "2021-02-17_run7_C001H001S0001";
                 "2021-02-17_run8_C001H001S0001";
                 "2021-02-17_run9_C001H001S0001";
-                "2021-02-17_run10_C001H001S0001"];
+                "2021-02-17_run10_C001H001S0001";
+                "2021-02-24_run11_C001H001S0001";
+                "2021-02-24_run12_C001H001S0001";
+                "2021-02-24_run13_C001H001S0001";
+                "2021-02-24_run14_C001H001S0001";
+                "2021-02-24_run15_C001H001S0001"];
 
 %The number for two consecutive images with the wave in the middle of the
 %image. With three pairs of images for each run.     %run number
@@ -55,7 +60,9 @@ for i=1:size(run_folder, 1)
 end
 
 %the frequencies for the runs
-frequency = [1.75;1.75;2.25;2.25;1.75;1.75;1.75;2.25;2.25;1.75];
+frequency = [1.75;1.75;2.25;2.25;1.75;
+            1.75;1.75;2.25;2.25;1.75;
+            1.75;1.75;1.75;2.25;2.25];
 
 surface_start_stop = [  1000 2000;%can check first ones
                         1000 2000;
@@ -66,4 +73,9 @@ surface_start_stop = [  1000 2000;%can check first ones
                         700 2000;
                         400 2000;
                         650 2000;
-                        1000 2000];
+                        1000 2000;
+                        1000 2000;
+                        1000 2000;
+                        1000 2000;
+                        1000 2000;
+                        1200 2000];

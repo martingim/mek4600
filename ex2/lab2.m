@@ -1,10 +1,10 @@
 close all
 
-n_runs = 10;
-n_waves = 3;
+n_runs = 15;
+n_waves = 1;
 max_arrows = 50; %max number of arrows in one dim in the quiver plots
 height = 0.33;
-for run_number=6:n_runs
+for run_number=11:n_runs
     for wave=1:n_waves
         perform_PIV(run_number, wave);
     end
