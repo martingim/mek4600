@@ -64,6 +64,7 @@ frequency = [1.75;1.75;2.25;2.25;1.75;
             1.75;1.75;2.25;2.25;1.75;
             1.75;1.75;1.75;2.25;2.25];
 
+%the start and stop indices for the measuring of the surface elevation
 surface_start_stop = [  1000 2000;%can check first ones
                         1000 2000;
                         800 2000;
