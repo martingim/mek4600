@@ -12,7 +12,9 @@ x0 = 73;
 x1 = 1988;
 y0 = 472;
 y1 = 2020;
-yr = 367;
+yr = 400;
+x_points = 27;
+
 [x_pos, y_pos] = ndgrid(round(x1:(x0-x1)/26:x0), round(y1:(y0-y1)/21:y0));
 pixel = [reshape(x_pos, [], 1) reshape(y_pos, [], 1)];
 
@@ -52,6 +54,7 @@ t_points = xc(idx,:);
 
 idx = knnsearch(xc,reflec_points);
 reflec_points = xc(idx,:);
+plot(reflec_points(:,1), reflec_points(:,2), 'xb')
 
 
 reflection = tformfwd(tform1, reflec_points);
@@ -114,13 +117,12 @@ r_points_y = ones(x_points, 1)*yr;
 
 t_points = [points_x' t_points_y];
 reflec_points = [points_x' r_points_y];
-
 idx = knnsearch(xc,t_points);
 t_points = xc(idx,:);
 
 idx = knnsearch(xc,reflec_points);
 reflec_points = xc(idx,:);
-
+plot(reflec_points(:,1), reflec_points(:,2), 'xb')
 
 reflection = tformfwd(tform2, reflec_points);
 t_points = tformfwd(tform2, t_points);
