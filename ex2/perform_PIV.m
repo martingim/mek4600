@@ -5,11 +5,13 @@ function [UVw, params_this_run] = perform_PIV(run_number, pair_number)
 
 image_names
 coord_config
-
-im1 = imread(image_name(run_number, pair_number*2-1));
-im2 = imread(image_name(run_number, pair_number*2));
-mask1_name = image_name(run_number, pair_number*2-1) + ".mask.mat";
-mask2_name = image_name(run_number, pair_number*2) + ".mask.mat";
+im1_name = image_name(run_number, pair_number*2-1);
+im2_name = image_name(run_number, pair_number*2);
+im1 = imread(im1_name);
+im2 = imread(im2_name);
+% 
+% im1 = gpuArray(im1);
+% im2 = gpuArray(im2);
 
 
 height = 0.33;
@@ -25,19 +27,12 @@ end
 g = 9.81;
 t = 0;
 
-window_sizes = [64 32];
-window_overlap = [0.5 0.5 0.5 0.5 0.5 0.5];
+window_sizes = [64 48];
+window_overlap = [0.5 0.75 0.5 0.5 0.5 0.5];
 
 %try to load the image masks 
-try
-    load(mask1_name)
-    load(mask2_name)
-catch %if it doesn't work mask and save the mask.
-    mask1 = mask_image(im1);
-    mask2 = mask_image(im2);
-    save(mask1_name, 'mask1')
-    save(mask2_name, 'mask2')
-end
+mask1 = image_mask(im1_name);
+mask2 = image_mask(im2_name);
 
 %% Perform PIV passes
 piv1 = [];
@@ -61,41 +56,44 @@ idx = interp2(double(mask1&mask2),piv1.x,piv1.y)==1;
 
 
 
-%% Save the results
-try
-    load('velocities.mat');
-catch
-    velocities = containers.Map('KeyType', 'double', 'ValueType', 'any');
-end
-
-try
-    run_velocities = velocities(run_number);
-catch
-    run_velocities = containers.Map('KeyType', 'double', 'ValueType', 'any');
-end
+% %% Save the results
+% try
+%     load('velocities.mat');
+% catch
+%     velocities = containers.Map('KeyType', 'double', 'ValueType', 'any');
+% end
+% 
+% try
+%     run_velocities = velocities(run_number);
+% catch
+%     run_velocities = containers.Map('KeyType', 'double', 'ValueType', 'any');
+% end
 
 UVw(1,:,:) = Uw;
 UVw(2,:,:) = Vw;
 UVw(3,:,:) = xw;
 UVw(4,:,:) = yw;
 UVw(5,:,:) = idx;
-run_velocities(pair_number) = UVw;
-velocities(run_number) = run_velocities;
-save('velocities.mat', 'velocities');
+% run_velocities(pair_number) = UVw;
+% velocities(run_number) = run_velocities;
+% save('velocities.mat', 'velocities');
 
-try 
-    load('params.mat')
-catch
-    params = containers.Map('KeyType', 'double', 'ValueType', 'any');
-end
+save(sprintf('results/velocities_run%d_wave%d.mat', run_number, pair_number), 'UVw');
+% 
+% try 
+%     load('params.mat')
+% catch
+%     params = containers.Map('KeyType', 'double', 'ValueType', 'any');
+% end
 params_this_run = containers.Map;
 params_this_run('a') = surface_height(run_number);
 params_this_run('k') = k;
 params_this_run('omega') = omega;
 
-params(run_number) = params_this_run;
-
-save('params.mat', 'params')
+save(sprintf('results/params_run%d', run_number), 'params_this_run');
+% params(run_number) = params_this_run;
+% 
+% save('params.mat', 'params')
 
 
 
