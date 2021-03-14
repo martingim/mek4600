@@ -1,6 +1,6 @@
 function [mask] = image_mask(img_name)
 %Loads image mask from file or creates mask and saves it to file
-mask_name = img_name + "mask.mat";
+mask_name = 'masks/' + img_name + ".mask.mat";
 try
     load(mask_name)
 catch %if it doesn't work mask and save the mask.

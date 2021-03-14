@@ -28,13 +28,13 @@ idx = knnsearch(xc,pixel);
 pixel = xc(idx,:);
 
 % Define matching reference points in world coordinate
-[wx,wy] = ndgrid((13:-1:-13)*0.01,(-22:1:-1)*0.01);
+[wx,wy] = ndgrid((13:-1:-13)*0.01,(-21:1:0)*0.01);
 world = [wx(:) wy(:)];
 [tform1, err, env] = createcoordsystem(pixel, world, 'cubic');
 %show coord image and chosen poinbts
-imshow(coord)
-hold on 
-plot(pixel(:,1),pixel(:,2), 'x')
+% imshow(coord)
+% hold on 
+% plot(pixel(:,1),pixel(:,2), 'x')
 
 
 %Find height from the surface to the top points under water
@@ -54,7 +54,7 @@ t_points = xc(idx,:);
 
 idx = knnsearch(xc,reflec_points);
 reflec_points = xc(idx,:);
-plot(reflec_points(:,1), reflec_points(:,2), 'xb')
+%plot(reflec_points(:,1), reflec_points(:,2), 'xb')
 
 
 reflection = tformfwd(tform1, reflec_points);
@@ -62,7 +62,7 @@ t_points = tformfwd(tform1, t_points);
 height_from_surface = mean((reflection(:,2) + t_points(:,2))/2);
 %make the transform again
 
-[wx,wy] = ndgrid((13:-1:-13)*0.01,(-22:1:-1)*0.01 + height_from_surface);
+[wx,wy] = ndgrid((13:-1:-13)*0.01,(-21:1:0)*0.01 - height_from_surface);
 world = [wx(:) wy(:)];
 [tform1, err, env] = createcoordsystem(pixel, world, 'cubic');
 
@@ -94,13 +94,13 @@ idx = knnsearch(xc,pixel);
 pixel2 = xc(idx,:);
  
 %show the initial dot guess and refined positions
-imshow(bw)
-hold on
-plot(pixel(:,1), pixel(:,2), 'rx')
-plot(pixel2(:,1), pixel2(:,2), 'yx')
+% imshow(bw)
+% hold on
+% plot(pixel(:,1), pixel(:,2), 'rx')
+% plot(pixel2(:,1), pixel2(:,2), 'yx')
 
 % Define matching reference points in world coordinate
-[wx,wy] = ndgrid((12:-1:-12)*0.01,(-22:1:-1)*0.01);
+[wx,wy] = ndgrid((12:-1:-12)*0.01,(-21:1:0)*0.01);
 
 world = [wx(:) wy(:)];
 [tform2, err, env] = createcoordsystem(pixel2, world, 'cubic');
@@ -122,14 +122,14 @@ t_points = xc(idx,:);
 
 idx = knnsearch(xc,reflec_points);
 reflec_points = xc(idx,:);
-plot(reflec_points(:,1), reflec_points(:,2), 'xb')
+% plot(reflec_points(:,1), reflec_points(:,2), 'xb')
 
 reflection = tformfwd(tform2, reflec_points);
 t_points = tformfwd(tform2, t_points);
 height_from_surface = mean((reflection(:,2) + t_points(:,2))/2);
 %make the transform again
 
-[wx,wy] = ndgrid((12:-1:-12)*0.01,(-22:1:-1)*0.01 + height_from_surface);
+[wx,wy] = ndgrid((12:-1:-12)*0.01,(-21:1:0)*0.01 - height_from_surface);
 world = [wx(:) wy(:)];
 [tform2, err, env] = createcoordsystem(pixel2, world, 'cubic');
 
@@ -160,13 +160,13 @@ idx = knnsearch(xc,pixel);
 pixel3 = xc(idx,:);
  
 %show the initial dot guess and refined positions
-imshow(bw)
-hold on
-plot(pixel(:,1), pixel(:,2), 'rx')
-plot(pixel3(:,1), pixel3(:,2), 'yx')
+% imshow(bw)
+% hold on
+% plot(pixel(:,1), pixel(:,2), 'rx')
+% plot(pixel3(:,1), pixel3(:,2), 'yx')
 
 % Define matching reference points in world coordinate
-[wx,wy] = ndgrid((14:-1:-13)*0.01,(-22:1:-1)*0.01);
+[wx,wy] = ndgrid((14:-1:-13)*0.01,(-21:1:0)*0.01);
 world = [wx(:) wy(:)];
 [tform3, err, env] = createcoordsystem(pixel3, world, 'cubic');
 
@@ -196,7 +196,7 @@ t_points = tformfwd(tform3, t_points);
 height_from_surface = mean((reflection(:,2) + t_points(:,2))/2);
 %make the transform again
 
-[wx,wy] = ndgrid((14:-1:-13)*0.01,(-22:1:-1)*0.01 + height_from_surface);
+[wx,wy] = ndgrid((14:-1:-13)*0.01,(-21:1:0)*0.01 - height_from_surface);
 world = [wx(:) wy(:)];
 [tform3, err, env] = createcoordsystem(pixel3, world, 'cubic');
 
