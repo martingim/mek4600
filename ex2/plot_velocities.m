@@ -78,50 +78,7 @@ xlabel('x[m]')
 ylabel('y[m]')
 
 
-% %% Velocity profile
 % 
-% %find the crest
-% figure;
-% %V(isnan(Uw))=0;
-% v_abs = abs(V);
-% v_mean = ones(size(v_abs, 2), 1);
-% for i=1:size(v_abs, 2)
-%     v_mean(i) = mean(v_abs((~isnan(v_abs(i,:))), i));
-% end
-% 
-% NaN_sides = ones(size(v_mean));%vector to make the values to the left and right sides of the image NaN to find the internal minimum
-% for i = 1:size(v_mean, 2)
-%     if i<size(v_mean, 2)*0.25 || i>size(v_mean, 2)*0.75
-%         NaN_sides(i) = NaN;
-%     end
-% end
-% 
-% [ ~, crest_idx] = min(v_mean.*NaN_sides);
-% plot(xw(1,:), v_mean, 'r');
-% title('mean v over y')
-% 
-% %find the velocity profile at the crest
-% 
-% u_crest = Uw(:,crest_idx-1:crest_idx+1);
-% u_crest = mean(u_crest, 2);
-% u_crest = Uw(:,crest_idx);
-% u_crest = u_crest(idx(:,crest_idx)&idx(:,crest_idx-1)&idx(:,crest_idx+1));
-% crest_mask = idx(:,crest_idx)&idx(:,crest_idx-1)&idx(:,crest_idx+1);
-% u_crest_scaled = 1/(a*omega)*u_crest;
-% y_scaled = 1/height*yw(crest_mask);
-% 
-% figure;
-% hold on 
-% plot(u_crest_scaled, y_scaled, 'x')
-% plot(1/(a*omega)*u(xw(crest_mask)*0, yw(crest_mask)), y_scaled);
-% 
-% legend('measured', 'theoretical')
-% title('theoretical and measured horizontal velocity under the crest')
-% 
-% xlabel('$\frac{v}{a\omega}$', 'interpreter', 'latex', 'FontSize', 20)
-% ylabel('$\frac{y}{h}$', 'interpreter', 'latex', 'FontSize', 20, 'rotation', 0)
-
-
 % 
 % %% Calculate sigma
 % [M, N] = size(Uw);
