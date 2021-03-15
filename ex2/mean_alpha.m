@@ -1,12 +1,9 @@
 close all
 %constants
+image_names
 g = 9.82;
 t = 0;
-run_numbers_same_params = [1 5 12;
-                            2 10 13;
-                            3 8 15;
-                            4 9 14;
-                            6 7 11];
+
 
 alpha_mean = containers.Map('KeyType', 'double', 'ValueType', 'any');
 params = containers.Map('KeyType', 'double', 'ValueType', 'any');
@@ -28,7 +25,7 @@ for i=1:size(run_numbers_same_params, 1)
         k = p('k');
         ak(run_number) = a*k;
         omega = p('omega');
-        height = 0.335;
+        height = heights(run_number);
         kh(run_number) = k*height;
         v_name1 = sprintf('results/velocities_run%d_wave%d.mat', run_number, 1);
         v_name2 = sprintf('results/velocities_run%d_wave%d.mat', run_number, 2);
@@ -67,7 +64,7 @@ for i=1:size(run_numbers_same_params, 1)
     alpha_mean(i) = alpha_run_mean;
     
 end
-close all
+
 figure;
 for i=1:size(run_numbers_same_params, 1)
     par_alpha = alpha_mean(i);

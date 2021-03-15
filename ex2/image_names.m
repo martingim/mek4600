@@ -1,3 +1,4 @@
+%File containing file names image names, run params etc.
 %the name of the folder for one day at the lab
 day_folder = [  "MEK4600_G3_21_10_02";
                 "MEK4600_G3_21_10_02";
@@ -65,11 +66,21 @@ for i=1:size(run_folder, 1)
     end
 end
 
+% the heights of the water level in the tank
+heights = ones(15, 1)*0.335;
+
 %the frequencies for the runs
 frequency = [1.75;1.75;2.25;2.25;1.75;
             1.75;1.75;2.25;2.25;1.75;
             1.75;1.75;1.75;2.25;2.25];
-
+% the run numbers that are run with the same parameters are in the same row
+% for making means over the runs with the same parameters.
+run_numbers_same_params = [1 5 12;
+                            2 10 13;
+                            3 8 15;
+                            4 9 14;
+                            6 7 11];
+        
 %the start and stop indices for the measuring of the surface elevation
 surface_start_stop = [  1000 2000;%can check first ones
                         1000 2000;

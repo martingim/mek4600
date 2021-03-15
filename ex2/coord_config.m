@@ -204,30 +204,3 @@ world = [wx(:) wy(:)];
 
 %%
 tform = [tform1 tform2 tform3];
-
-
-
-% %make pixel to world transform by selecting points
-% if exist('tform', 'var') ==1
-% 
-% else
-%     coord = imread(coord_name);
-%     imagesc(coord)
-%     h = impoly;
-%     title('select from top right towards left')
-%     pixel = h.getPosition;
-%     
-%     %refine pixel positions
-%     c = graythresh(coord);
-%     bw = im2bw(coord);
-%     cc = bwconncomp(bw);
-%     stats = regionprops(cc,'Centroid');
-%     xc = vertcat(stats.Centroid);
-%     idx = knnsearch(xc,pixel);
-%     pixel = xc(idx,:);
-%     
-%     % Define matching reference points in world coordinate
-%     [wx,wy] = ndgrid((10:-5:-10)*0.01,(-10:5:-5)*0.01);
-%     world = [wx(:) wy(:)];
-%     [tform, err, env] = createcoordsystem(pixel, world, 'linear');
-% end

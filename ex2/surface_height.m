@@ -5,6 +5,7 @@ folder = day_folder(run_number);
 f = frequency(run_number); %The frequency of the run
 [omega,T,K,LAMBDA,CP,CG] = wparam(f, 0.33); %calculate the wavenumber and phase velocity
 sensor_distance = 0.4; %the dstance between the sensors in meters(should maybe change this to a vector)
+
 %start and stop frame for measuring the elevation of the surface
 surface_frame_start = surface_start_stop(run_number, 1);
 surface_frame_end = surface_start_stop(run_number, 2);
@@ -22,13 +23,14 @@ sensordata(sensordata<350|sensordata>850) = NaN; %replace the outliers with NaN
 %convert the data from the sensors to measured surface elevation in meters
 measured_surface = [sensor1(sensordata(:,1)), sensor2(sensordata(:,2)) sensor3(sensordata(:,3)) sensor4(sensordata(:,4))];
 
-%subtract the mean from the surface to get zero mean
+%subtract the mean of the start of the measurements from the startto get zero mean
 surface_mean = mean(measured_surface(1:100,:), 'omitnan');
 measured_surface = measured_surface -surface_mean;
 
 %plot the sensor data from all four sensors with the same waves on top of
 %each other
 sensor_offset = round(sensor_samplerate*sensor_distance/CP)-2; %sensor offset in samples to plot the same waves on top of each other
+%% plot the sensor data
 % figure;
 % hold on 
 % plot(measured_surface(:,1))
@@ -37,23 +39,24 @@ sensor_offset = round(sensor_samplerate*sensor_distance/CP)-2; %sensor offset in
 % plot(measured_surface(3*sensor_offset:end,4))
 % legend('sensor1', 'sensor2', 'sensor3', 'sensor4')
 % 
+%% PLot the locations of the crests and the troughs together witht the measurements of the surface
 % %Find the crests on troughs from the first sensor and plot with the
 % %measured data
 % time = (1:size(measured_surface, 1))/100;
 % figure;
 % hold on
-% surf = measured_surface(:,1);
-% plot(time, measured_surface(:,1))
-% LMax = islocalmax(measured_surface(:,1), 'MinSeparation', min_separation);
-% LMin = islocalmin(measured_surface(:,1), 'MinSeparation', min_separation);
+% sensor_number = 1;
+% surf = measured_surface(:,sensor_number);
+% plot(time, measured_surface(:,sensor_number))
+% LMax = islocalmax(measured_surface(:,sensor_number), 'MinSeparation', min_separation);
+% LMin = islocalmin(measured_surface(:,sensor_number), 'MinSeparation', min_separation);
 % plot(time(LMin), surf(LMin), 'x')
 % plot(time(LMax), surf(LMax), 'x')
 
 
 %%
 %find the crests and troughs of the measured surface to find the mean
-%amplitude of the waves. %%maybe change this later to only look at one wave
-% surf = measured_surface(surface_frame_start:surface_frame_end,:); %change this to use the sensor_offset
+%amplitude of the waves.
 surf = zeros(surface_frame_end-surface_frame_start-3*sensor_offset, 4);
 
 surf(:,1) = measured_surface(surface_frame_start + sensor_offset*0:surface_frame_end-3*sensor_offset-1,1);
@@ -61,7 +64,7 @@ surf(:,2) = measured_surface(surface_frame_start + sensor_offset*1:surface_frame
 surf(:,3) = measured_surface(surface_frame_start + sensor_offset*2:surface_frame_end-1*sensor_offset-1,3);
 surf(:,4) = measured_surface(surface_frame_start + sensor_offset*3:surface_frame_end-0*sensor_offset-1,4);
 
-
+%Fill the missing values in te sensor data
 surf = fillmissing(surf(:,:),'linear');
 
 smooth_surf = zeros(size(surf));
@@ -69,6 +72,7 @@ smooth_surf(:,1) = smooth(surf(:,1),0.02,'rloess');
 smooth_surf(:,2) = smooth(surf(:,2),0.02,'rloess');
 smooth_surf(:,3) = smooth(surf(:,3),0.02,'rloess');
 smooth_surf(:,4) = smooth(surf(:,4),0.02,'rloess');
+
 % %% plot measured and smoothed
 % figure;
 % hold on 
@@ -80,8 +84,9 @@ smooth_surf(:,4) = smooth(surf(:,4),0.02,'rloess');
 % plot(surf(:,2))
 % plot(surf(:,3))
 % plot(surf(:,4))
-% legend('1', '2', '3', '4','1', '2', '3', '4')
+% legend('1 smoothed', '2 smoothed', '3 smoothed', '4 smoothed','1', '2', '3', '4')
 
+% Find the mean amplitude from the smoothed surface
 mean_amplitude = zeros(size(surf, 2),1);
 for i=1:size(surf, 2)
     LMax = islocalmax(smooth_surf(:,i), 'MinSeparation', min_separation);
@@ -139,31 +144,17 @@ for i=1:4
     
     %plot(t_measured, smooth_surf(start_idx:start_idx+size(t_measured, 2)-1,i)', '--')
 end
+
 measured_mean = measured_mean./4;
-
-
 smoothed_measured_mean = smoothed_measured_mean./4;
+
+%standard deviation from the mean of the measured surface
 S = std(surface-measured_mean);
-crests = islocalmax(smoothed_measured_mean);
-crest_values = smoothed_measured_mean(crests);
-troughs = islocalmin(smoothed_measured_mean);
-trough_values = smoothed_measured_mean(troughs);
-smoothed_measured_mean_n =  smoothed_measured_mean;% -(mean(crest_values) - eta_non_linear(1) );
-smoothed_measured_mean = smoothed_measured_mean;% -(mean(crest_values) - eta(1) );
 
-non_lin_rms = rms(smoothed_measured_mean_n-eta_non_linear');
-lin_rms = rms(smoothed_measured_mean - eta');
 
-if lin_rms<non_lin_rms
-    plot(t_measured, smoothed_measured_mean)
-    disp('linear')
-else
-    plot(t_measured, smoothed_measured_mean_n)
-    disp('non linear')
-end
+plot(t_measured, smoothed_measured_mean)
 
-%legend('linear', 'non-linear', '1', '2', '3', '4', 'mean of the sensor data')
-%legend('linear', 'non-linear', 'mean of the smoothed sensor data', 'Location', 'southoutside')
+%legend('linear', 'non-linear', 'mean of the smoothed sensor data')
 title(sprintf('surface elevation run:%d', run_number))
 xlabel('t[s]')
 ylabel('$\eta [m]$', 'interpreter', 'latex', 'FontSize', 15, 'rotation', 0)
@@ -209,7 +200,7 @@ ylabel('$\eta [m]$', 'interpreter', 'latex', 'FontSize', 15, 'rotation', 0)
 % 
 % 
 % 
-% %% FFT of the measured surface
+% %% FFT of the smoothed surface
 % figure;
 % X = smoothed_measured_mean;
 % Y = fft(X);

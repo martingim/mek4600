@@ -1,9 +1,6 @@
-function [y_scaled, u_crest_scaled, alpha, crest_mask] = plot_velocities(run_number, pair_number, max_arrows)
+function [] = plot_velocities(run_number, pair_number, max_arrows)
 %%plots the velocity fields from the folder results based on the rrun
 %%number and the wave pair images number 
-
-
-height = 0.33;
 
 %Velocity field name
 v_name = sprintf('results/velocities_run%d_wave%d.mat', run_number, pair_number);
@@ -31,12 +28,7 @@ idx = squeeze(UVw(5,:,:));
 
 
 
-%%  analytical solution
-%potential of wave moving to the right
-%phi = a*g/omega*exp(k*y)*sin(k*x-omega*t);
-u = @(x, y) a*k*g/omega*exp(k*y).*cos(k*x-omega*t);
-v = @(x, y) a*k*g/omega*exp(k*y).*sin(k*x-omega*t);
-
+[u, v] = analytical_solution(a, k, g, omega, t);
 
 %% make New mask for quiver plots based on max_arows
 quiver_idx = idx;
@@ -78,26 +70,5 @@ xlabel('x[m]')
 ylabel('y[m]')
 
 
-% 
-% 
-% %% Calculate sigma
-% [M, N] = size(Uw);
-% sigma = 0;
-% m = 0;
-% for i=1:M
-%     m = m + max(idx(i,:)); % add one if there is a 1 in the mask on this row
-%     n = 1e-16;
-%     s = 0;
-%     for j=1:N
-%         if idx(i,j)==1
-%             n = n + 1;
-%             s = s + (V_norm(i,j)-V_norm_mean(i))^2;
-%         end
-%         
-%     end
-%     s = s/n;
-%     sigma = sigma + sqrt(s);
-% end
-% sigma = sigma/m
 
 end

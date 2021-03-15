@@ -11,7 +11,7 @@ im1 = imread(im1_name);
 im2 = imread(im2_name);
 
 
-height = 0.33;
+height = heights(run_number);
 f = frequency(run_number);
 [omega,T,k,LAMBDA,CP,CG]=wparam(f,height);
 

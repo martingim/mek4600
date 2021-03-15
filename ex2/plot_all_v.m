@@ -1,7 +1,10 @@
 function [] = plot_all_v()
-%UNTITLED6 Summary of this function goes here
-%   Detailed explanation goes here
+%plot all velocities from all runs
+%   makes quiver plots for all the runs and waves with max 50 arrows in
+%   each dimension
+
 close all
+
 n_runs = 15;
 for run_number = 1:n_runs
     plot_run(run_number)
