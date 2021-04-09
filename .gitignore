@@ -34,6 +34,9 @@ codegen/
 # Simulink cache files
 *.slxc
 
+# some file
+*.cihx
+
 # Octave session info
 octave-workspace
 
